@@ -65,6 +65,9 @@ keys = [
 
     #Key([mod, "shift"], "i", lazy.layout.crient_to_next()),
 
+    # Move Focus to another monitor
+    Key([mod], 'period', lazy.next_screen(), desc='Next monitor'),
+
 
     # Toggle between different layouts as defined below
     Key([mod], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
