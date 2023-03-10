@@ -45,7 +45,7 @@ groups = [
             ),
         Group("🎮📺"),
         Group("🏋️🏃"),
-        Group("🎓📚")
+        Group("🌐🕵️")
         ]
 
 layout_theme = {
