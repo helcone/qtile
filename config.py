@@ -1,7 +1,6 @@
-from libqtile import bar, layout, extension
+from libqtile import bar, layout, extension, hook
 from qtile_extras import widget
-from qtile_extras.widget.decorations import PowerLineDecoration
-
+from qtile_extras.widget.decorations import PowerLineDecoration, base
 from libqtile.lazy import lazy
 from libqtile.config import Key, Click, Drag, KeyChord, ScratchPad, DropDown
 from libqtile.utils import guess_terminal
@@ -9,6 +8,7 @@ from libqtile.config import Click, Drag, Group, Match, Screen
 from libqtile.dgroups import simple_key_binder
 from libqtile import hook, qtile
 from modules.keys import keys
+from audio_device_widget import AudioDeviceWidget
 
 @hook.subscribe.startup_once
 def autostart():
@@ -16,24 +16,9 @@ def autostart():
     os.environ["GDK_BACKEND"] = "x11"
 
 
-## Sticky window
-#
-#win_list = []
-#def stick_win(qtile):
-#    global win_list
-#    win_list.append(qtile.current_window)
-#def unstick_win(qtile):
-#    global win_list
-#    if qtile.current_window in win_list:
-#        win_list.remove(qtile.current_window)
-#@hook.subscribe.setgroup
-#def move_win():
-#    for w in win_list:
-#        w.togroup(qtile.current_group.name)
-#
 # Set personal variables
-
 mod = "mod4"
+audio_device_widget = AudioDeviceWidget()
 alt = "mod1"
 terminal = guess_terminal()
 font = "Fira Code Nerd Font"
@@ -166,6 +151,7 @@ def init_widget_list():
             padding=1,
             background=color_darkgray
         ),
+        audio_device_widget,
         widget.Volume(
             background=color_darkgray
         ),
