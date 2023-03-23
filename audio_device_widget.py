@@ -1,6 +1,9 @@
 import os
-from libqtile import bar, hook
+from libqtile import bar, hook, qtile
 from libqtile.widget import base
+
+import os
+from libqtile import qtile
 
 def choose_audio_device():
     # Get a list of all audio devices
@@ -13,7 +16,8 @@ def choose_audio_device():
         menu_items.append(device_name)
 
     # Show the menu and let the user choose an audio device
-    chosen_device = qtile.widget.prompt.Prompt("Choose an audio device: ", menu_items).value
+    menu_str = '\n'.join(menu_items)
+    chosen_device = os.popen(f"echo \"{menu_str}\" | dmenu -i -p 'Choose an audio device:'").read().strip()
 
     # Set the chosen audio device as the default
     os.system(f"pactl set-default-sink {chosen_device}")
