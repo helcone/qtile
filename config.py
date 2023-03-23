@@ -18,7 +18,6 @@ def autostart():
 
 # Set personal variables
 mod = "mod4"
-audio_device_widget = AudioDeviceWidget()
 alt = "mod1"
 terminal = guess_terminal()
 font = "Fira Code Nerd Font"
@@ -151,7 +150,9 @@ def init_widget_list():
             padding=1,
             background=color_darkgray
         ),
-        audio_device_widget,
+        AudioDeviceWidget(
+                background=color_darkgray
+                ),
         widget.Volume(
             background=color_darkgray
         ),
