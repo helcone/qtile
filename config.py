@@ -1,6 +1,7 @@
 from libqtile import bar, layout, extension
 from qtile_extras import widget
 from qtile_extras.widget.decorations import PowerLineDecoration
+
 from libqtile.lazy import lazy
 from libqtile.config import Key, Click, Drag, KeyChord, ScratchPad, DropDown
 from libqtile.utils import guess_terminal
@@ -36,13 +37,11 @@ mod = "mod4"
 alt = "mod1"
 terminal = guess_terminal()
 font = "Fira Code Nerd Font"
-#catpuccin = {
-#        "Surface1": 
 groups = [
         Group("🛡️"),
         Group("📝🔍",
-            layout="monadtall"
-            ),
+                layout="monadtall"
+             ),
         Group("🎮📺"),
         Group("🏋️🏃"),
         Group("🌐🕵️")
@@ -67,7 +66,7 @@ layouts = [
      #layout.MonadWide(**layout_theme),
      #layout.Tile(**layout_theme),
      #layout.VerticalTile(**layout_theme),
-     #layout.Max(),
+     layout.Max(),
      #layout.Zoomy(),
 ]
 # Power line decorations
@@ -78,7 +77,7 @@ powerline = {
 }
 
 widget_defaults = dict(
-    font="Fira Code Nerd Font",
+    font="FiraCode Nerd Font",
     fontsize=14,
     background="#292d3e",
 )
