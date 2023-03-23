@@ -24,7 +24,7 @@ def choose_audio_device():
 
 class AudioDeviceWidget(base._TextBox):
     def __init__(self, **config):
-        base._TextBox.__init__(self, "Audio Device", **config)
+        base._TextBox.__init__(self, "🔈", **config)
 
     def button_press(self, x, y, button):
         if button == 1:
