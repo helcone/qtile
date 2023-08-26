@@ -1,1 +1,3 @@
-__pycache__/*
+__pycache__
+*.pyc
+>>>>>>> f482e62 (Initial Commit of personalized desktop on qtile)

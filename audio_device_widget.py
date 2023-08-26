@@ -17,7 +17,7 @@ def choose_audio_device():
 
     # Show the menu and let the user choose an audio device
     menu_str = '\n'.join(menu_items)
-    chosen_device = os.popen(f"echo \"{menu_str}\" | dmenu -i -p 'Choose an audio device:'").read().strip()
+    chosen_device = os.popen(f"echo \"{menu_str}\" | dmenu -l -i -p 'Choose an audio device:'").read().strip()
 
     # Set the chosen audio device as the default
     os.system(f"pactl set-default-sink {chosen_device}")

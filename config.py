@@ -1,3 +1,5 @@
+import os
+import subprocess
 from libqtile import bar, layout, extension, hook
 from qtile_extras import widget
 from qtile_extras.widget.decorations import PowerLineDecoration, base
@@ -8,10 +10,14 @@ from libqtile.config import Click, Drag, Group, Match, Screen
 from libqtile.dgroups import simple_key_binder
 from libqtile import hook, qtile
 from modules.keys import keys
+from modules.nordvpn import NordVPN
 from audio_device_widget import AudioDeviceWidget
+from poweroff import PowerOffButton
 
 @hook.subscribe.startup_once
 def autostart():
+    home = os.path.expanduser('~/.config/qtile/autostart.sh')
+    subprocess.Popen([home])
     # Set the GDK_BACKEND environment variable to "x11"
     os.environ["GDK_BACKEND"] = "x11"
 
@@ -22,13 +28,17 @@ alt = "mod1"
 terminal = guess_terminal()
 font = "Fira Code Nerd Font"
 groups = [
-        Group("🛡️"),
-        Group("📝🔍",
-                layout="monadtall"
-             ),
-        Group("🎮📺"),
-        Group("🏋️🏃"),
-        Group("🌐🕵️")
+        Group("🌐",
+              layout="treetab"
+              ),
+        Group("📝",
+              layout="max"
+              ),
+        Group("🎮"),
+        Group("📚",
+              layout="columns"
+              ),
+        Group("󰆍")
         ]
 
 layout_theme = {
@@ -37,21 +47,21 @@ layout_theme = {
         }
 
 layouts = [
-    # Try more layouts by unleashing below layouts.
-     layout.Columns(border_focus_stack=["#d75f5f", "#8f3d3d"], **layout_theme),
-     layout.TreeTab(
+        layout.Columns(
+            border_focus_stack=["#d75f5f", "#8f3d3d"], **layout_theme),
+        layout.TreeTab(
          previous_on_rm=True,
          **layout_theme),
-     layout.Stack(num_stacks=2, **layout_theme),
-     #layout.RatioTile(**layout_theme),
-     #layout.Bsp(**layout_theme),
-     #layout.Matrix(**layout_theme),
-     #layout.MonadTall(**layout_theme),
-     #layout.MonadWide(**layout_theme),
-     #layout.Tile(**layout_theme),
-     #layout.VerticalTile(**layout_theme),
-     layout.Max(),
-     #layout.Zoomy(),
+        layout.Stack(num_stacks=2, **layout_theme),
+        # layout.RatioTile(**layout_theme),
+        # layout.Bsp(**layout_theme),
+        # layout.Matrix(**layout_theme),
+        # layout.MonadTall(**layout_theme),
+        # layout.MonadWide(**layout_theme),
+        # layout.Tile(**layout_theme),
+        # layout.VerticalTile(**layout_theme),
+        layout.Max(),
+        layout.Zoomy(),
 ]
 # Power line decorations
 powerline = {
@@ -87,7 +97,7 @@ def init_widget_list():
         widget.Cmus(),
         widget.WindowName(**powerline),
         widget.Notify(
-            max_chars=14,
+            max_chars=150,
             default_timeout=20,
             scroll=True,
             background=color_orange,
@@ -99,40 +109,32 @@ def init_widget_list():
         widget.Pomodoro(
             background=color_yellow,
             color_active='#333333',
+            color_break='#1e233f',
             length_long_break=25,
             length_pomodori=25,
             length_short_break=5,
-            prefix_active=' ',
-            prefix_break='  ',
-            prefix_inactive=' Pomodoro',
-            prefix_long_break='  ',
+            prefix_active='🍎 ',
+            prefix_break='🚰 ',
+            prefix_inactive='🍏 Pomodoro',
+            prefix_long_break='🚰🚶 ',
             **powerline
         ),
         widget.Wallpaper(
-            label=' Wallpaper',
+            label='  Wallpaper',
             random_selection=True,
             fontsize=15,
             background=color_blue,
             option='fill',
             **powerline
         ),
-        widget.Battery(
-            padding=4,
-            full_char='',
-            discharge_char='',
-            charge_char='',
-            update_interval=15,
-            background=color_green,
-            **powerline
-        ),
         widget.Wlan(
             format=' {essid} {percent:1.0%}',
             disconnected_message='睊',
-            background=color_blue,
+            background=color_green,
             **powerline
         ),
         widget.TextBox(
-            '',
+            '  ',
             padding=0,
             background=color_gray
         ),
@@ -142,10 +144,11 @@ def init_widget_list():
             **powerline
         ),
         widget.Clock(
-            format=' %I:%M %p',
+            format='🕑 %I:%M %p',
             background=color_cyan,
             **powerline
         ),
+        #NordVPN(),
         widget.Systray(
             padding=1,
             background=color_darkgray
@@ -159,7 +162,8 @@ def init_widget_list():
         widget.KeyboardLayout(
             background=color_darkgray,
             configured_keyboards=['us', 'latam']
-        )
+        ),
+        PowerOffButton()
     ]
 
     return widgets_list
@@ -170,7 +174,7 @@ def init_widget_screen1():
     return widgets_screen1
 def init_widget_screen2():
     widgets_screen2 = init_widget_list()
-    del widgets_screen2[-3:]
+    del widgets_screen2[-5:]
     return widgets_screen2
 
 screens = [
@@ -184,20 +188,43 @@ dgroups_app_rules = []  # type: list
 
 # Define scratchpads
 groups.append(ScratchPad('scratchpad', [
-    DropDown("term", "alacritty --class=scratch", width=0.4, height=0.8, x=0.3, y=0.1, opacity=0.9),
-    DropDown("ranger", "alacritty --class=ranger -e ranger", width=0.6, height=0.8, x=0.2, y=0.1, opacity=0.9),
-    DropDown("cmus", "alacritty --class=cmus -e cmus", width=0.8, height=0.8, x=0.1, y=0.1, opacity=0.9),
-    DropDown("keepass", "keepassxc", width=0.4, height=0.8, x=0.3, y=0.1, opacity=0.9),
-    DropDown("notes", "flatpak run md.obsidian.Obsidian", width=0.8, height=0.8, x=0.1, y=0.1, opacity=1, matches=[Match(wm_class=["obsidian"])]),
-    DropDown("firefox", "firefox", width=0.8, height=0.8, x=0.1, y=0.1, opacity=1, on_focus_lost_hide=False),
-    DropDown("chrome", "flatpak run com.google.Chrome", width=0.8, height=0.8, x=0.1, y=0.1, opacity=1, on_focus_lost_hide=False),
-    DropDown("zathura", "zathura", width=0.8, height=0.8, x=0.1, y=0.1, opacity=1),
-    DropDown("whatsapp", "/opt/whatsdesk/whatsdesk", width=0.4, height=0.8, x=0.3, y=0.1, opacity=1),
-    DropDown("ringcentral", "ringcentral-community-app", width=0.45, height=0.8, x=0.3, y=0.1, opacity=1),
-    DropDown("nvim", "alacritty --class=nvim -e nvim", width=0.4, height=0.8, x=0.3, y=0.1, opacity=0.9),
-    DropDown("bluetuith", "alacritty --class=bluetuith -e bluetuith", width=0.4, height=0.8, x=0.3, y=0.1, opacity=0.9),
-    DropDown("android", "scrcpy -S", width=0.2, height=0.8, x=0.4, y=0.1, opacity=1, on_focus_lost_hide=False),
-    DropDown("keys", "alacritty --class=keys -e 'qtilekeys | less'", width=0.2, height=0.8, x=0.4, y=0.1, opacity=1, on_focus_lost_hide=False)
+    DropDown("term", "alacritty --class=scratch",
+             width=0.4, height=0.8, x=0.3, y=0.1, opacity=0.9),
+    DropDown("ranger", "alacritty --class=ranger -e ranger",
+             width=0.6, height=0.8, x=0.2, y=0.1, opacity=0.9),
+    DropDown("cmus", "alacritty --class=cmus -e cmus",
+             width=0.8, height=0.8, x=0.1, y=0.1, opacity=0.9),
+    DropDown("keepass", "keepassxc",
+             width=0.4, height=0.8, x=0.3, y=0.1, opacity=0.9),
+    DropDown("notes", "flatpak run md.obsidian.Obsidian",
+             width=0.8, height=0.8, x=0.1, y=0.1, opacity=1,
+             matches=[Match(wm_class=["obsidian"])]),
+    DropDown("firefox", "firefox",
+             width=0.8, height=0.8, x=0.1, y=0.1, opacity=1,
+             on_focus_lost_hide=False),
+    DropDown("chrome", "flatpak run com.google.Chrome",
+             width=0.8, height=0.8, x=0.1, y=0.1, opacity=1,
+             on_focus_lost_hide=False),
+    DropDown("zathura", "zathura",
+             width=0.8, height=0.8, x=0.1, y=0.1, opacity=1),
+    DropDown("whatsapp", "/opt/whatsdesk/whatsdesk",
+             width=0.4, height=0.8, x=0.3, y=0.1, opacity=1),
+    DropDown("nvim", "alacritty --class=nvim -e nvim",
+             width=0.4, height=0.8, x=0.3, y=0.1, opacity=0.9),
+    DropDown("bluetuith", "alacritty --class=bluetuith -e bluetuith",
+             width=0.4, height=0.8, x=0.3, y=0.1, opacity=0.9),
+    DropDown("android", "scrcpy -S",
+             width=0.2, height=0.8, x=0.4, y=0.1, opacity=1,
+             on_focus_lost_hide=False),
+    DropDown("keys", "alacritty --class=keys -e 'qtilekeys | less'",
+             width=0.2, height=0.8, x=0.4, y=0.1, opacity=1,
+             on_focus_lost_hide=False),
+    DropDown("htop", "alacritty -e htop",
+             height=0.5, width=0.5, x=0.25, y=0.25),
+    DropDown("authy", "authy",
+             height=0.4, width=0.8, x=0.3, y=0.1),
+    DropDown("radeontop", "alacritty -e radeontop",
+             height=0.5, width=0.5, x=0.25, y=0.25)
 ]))
 
 follow_mouse_focus = True
