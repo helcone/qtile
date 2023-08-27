@@ -2,6 +2,7 @@ from libqtile.lazy import lazy
 from libqtile.config import Key, Click, Drag, KeyChord
 from libqtile.utils import guess_terminal
 from libqtile import extension, hook, qtile
+import os
 
 mod = "mod4"
 alt = "mod1"
@@ -30,6 +31,23 @@ def add_treetab_section(layout):
 def delete_treetab_section(layout):
     prompt = qtile.widgets_map["prompt"]
     prompt.start_input("Section name: ", layout.cmd_del_section)
+
+def choose_audio_device(qtile):
+    # Get a list of all audio devices
+    devices = os.popen("pactl list short sinks").read().splitlines()
+
+    # Create a menu with all the audio devices
+    menu_items = []
+    for device in devices:
+        device_name = device.split()[1]
+        menu_items.append(device_name)
+
+    # Show the menu and let the user choose an audio device
+    menu_str = '\n'.join(menu_items)
+    chosen_device = os.popen(f"echo \"{menu_str}\" | dmenu -i -l 10 -p 'Choose an audio device:'").read().strip()
+
+    # Set the chosen audio device as the default
+    os.system(f"pactl set-default-sink {chosen_device}")
 
 
 keys = [
@@ -148,6 +166,8 @@ keys = [
     Key([mod], "Left", lazy.screen.prev_group(), desc="Move to left"),
     Key([mod], "Escape", lazy.screen.toggle_group(),
         desc="Move previous group"),
+    # Choose Audio Device
+    Key([mod], "F10", lazy.function(choose_audio_device)),
 
     # Scratch pads for chats
     Key([mod], "F2", lazy.group['scratchpad'].dropdown_toggle('whatsapp'),
