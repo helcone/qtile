@@ -29,10 +29,10 @@ terminal = guess_terminal()
 font = "Fira Code Nerd Font"
 groups = [
         Group("🌐",
-              layout="treetab"
+              layout="treetab",
               ),
         Group("📝",
-              layout="max"
+              layout="treetab"
               ),
         Group("🎮"),
         Group("📚",
@@ -50,14 +50,15 @@ layouts = [
         layout.Columns(
             border_focus_stack=["#d75f5f", "#8f3d3d"], **layout_theme),
         layout.TreeTab(
-         previous_on_rm=True,
-         **layout_theme),
+            sections = ["Navegador", "Birkman", "Cursos", "Chats"], 
+            previous_on_rm=True, 
+            **layout_theme),
         layout.Stack(num_stacks=2, **layout_theme),
         # layout.RatioTile(**layout_theme),
         # layout.Bsp(**layout_theme),
         # layout.Matrix(**layout_theme),
         # layout.MonadTall(**layout_theme),
-        # layout.MonadWide(**layout_theme),
+        layout.MonadWide(**layout_theme),
         # layout.Tile(**layout_theme),
         # layout.VerticalTile(**layout_theme),
         layout.Max(),
@@ -110,9 +111,9 @@ def init_widget_list():
             background=color_yellow,
             color_active='#333333',
             color_break='#1e233f',
-            length_long_break=25,
-            length_pomodori=25,
-            length_short_break=5,
+            length_long_break=30,
+            length_pomodori=30,
+            length_short_break=10,
             prefix_active='🍎 ',
             prefix_break='🚰 ',
             prefix_inactive='🍏 Pomodoro',
@@ -242,7 +243,8 @@ floating_layout = layout.Floating(
         Match(title="branchdialog"),  # gitk
         Match(title="pinentry"),  # GPG key password entry
         Match(title="Installation"),
-        Match(title="Live Caption"),
+        Match(title="Picture-in-Picture"),
+        Match(title="Live Caption")
     ]
 )
 auto_fullscreen = True
