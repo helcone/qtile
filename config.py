@@ -1,7 +1,8 @@
 import os
 import subprocess
 from libqtile import bar, layout, extension, hook
-from qtile_extras import widget
+#from qtile_extras import widget
+from libqtile import widget
 from qtile_extras.widget.decorations import PowerLineDecoration, base
 from libqtile.lazy import lazy
 from libqtile.config import Key, Click, Drag, KeyChord, ScratchPad, DropDown
@@ -149,6 +150,7 @@ def init_widget_list():
             background=color_cyan,
             **powerline
         ),
+        widget.Bluetooth(),
         #NordVPN(),
         widget.Systray(
             padding=1,
