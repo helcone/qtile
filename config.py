@@ -1,33 +1,43 @@
 import os
+import re
 import subprocess
+from modules.personal_widgets import init_widget_list
 from libqtile import bar, layout, extension, hook
-#from qtile_extras import widget
-from libqtile import widget
-from qtile_extras.widget.decorations import PowerLineDecoration, base
 from libqtile.lazy import lazy
 from libqtile.config import Key, Click, Drag, KeyChord, ScratchPad, DropDown
 from libqtile.utils import guess_terminal
-from libqtile.config import Click, Drag, Group, Match, Screen
+from libqtile.config import Group, Match, Screen
 from libqtile.dgroups import simple_key_binder
 from libqtile import hook, qtile
 from modules.keys import keys
-from modules.nordvpn import NordVPN
-from audio_device_widget import AudioDeviceWidget
-from poweroff import PowerOffButton
 
 @hook.subscribe.startup_once
 def autostart():
     home = os.path.expanduser('~/.config/qtile/autostart.sh')
     subprocess.Popen([home])
-    # Set the GDK_BACKEND environment variable to "x11"
-    os.environ["GDK_BACKEND"] = "x11"
-
+    if qtile.core.name == "x11":
+        os.environ["GDK_BACKEND"] = "x11" # Set the GDK_BACKEND environment variable to "x11"
+    elif qtile.core.name == "wayland":
+        os.environ["GDK_BACKEND"] = "wayland"
 
 # Set personal variables
 mod = "mod4"
 alt = "mod1"
 terminal = guess_terminal()
-font = "Fira Code Nerd Font"
+font = "Agave Nerd Font"
+
+
+#for vt in range(1,8):
+#    keys.append(
+#            Key(
+#                ["control", "mod1"],
+#                f"f{vt}",
+#                lazy.core.change_vt(vt).when(func=lambda: qtile.core.name == "wayland"),
+#                desc=f"Switch to VT{vt}",
+#                )
+#            )
+#
+
 groups = [
         Group("🌐",
               layout="treetab",
@@ -44,133 +54,27 @@ groups = [
 
 layout_theme = {
         "border_width": 2,
-        "margin": 8,
+        "margin": 2,
         }
 
 layouts = [
         layout.Columns(
             border_focus_stack=["#d75f5f", "#8f3d3d"], **layout_theme),
         layout.TreeTab(
-            sections = ["Navegador", "Birkman", "Cursos", "Chats"], 
-            previous_on_rm=True, 
+            sections = ["General", "Birkman", "Cursos", "Chats"],
+            previous_on_rm=True,
             **layout_theme),
         layout.Stack(num_stacks=2, **layout_theme),
-        # layout.RatioTile(**layout_theme),
-        # layout.Bsp(**layout_theme),
+        #layout.RatioTile(**layout_theme),
+        #layout.Bsp(**layout_theme),
         # layout.Matrix(**layout_theme),
         # layout.MonadTall(**layout_theme),
-        layout.MonadWide(**layout_theme),
+        # layout.MonadWide(**layout_theme),
         # layout.Tile(**layout_theme),
         # layout.VerticalTile(**layout_theme),
-        layout.Max(),
-        layout.Zoomy(),
+        # layout.Max(),
+        # layout.Zoomy(),
 ]
-# Power line decorations
-powerline = {
-    "decorations": [
-        PowerLineDecoration()
-    ]
-}
-
-widget_defaults = dict(
-    font="FiraCode Nerd Font",
-    fontsize=14,
-    background="#292d3e",
-)
-extension_defaults = widget_defaults.copy()
-
-def init_widget_list():
-    # Define color variables
-    color_yellow = '#FFFF00'
-    color_blue = '#0047AB'
-    color_green = '#007F5F'
-    color_gray = '#B1B2B8'
-    color_cyan = '#00A3CC'
-    color_orange = '#fe640b'
-    color_darkgray = '#4c4f56'
-
-    # Define widget list
-    widgets_list = [
-        widget.GroupBox(
-            fontsize=16,
-            highlight_method='line',
-            padding=3
-        ),
-        widget.Cmus(),
-        widget.WindowName(**powerline),
-        widget.Notify(
-            max_chars=150,
-            default_timeout=20,
-            scroll=True,
-            background=color_orange,
-        ),
-        widget.Prompt(
-            max_chars=150,
-            background=color_orange
-        ),
-        widget.Pomodoro(
-            background=color_yellow,
-            color_active='#333333',
-            color_break='#1e233f',
-            length_long_break=30,
-            length_pomodori=30,
-            length_short_break=10,
-            prefix_active='🍎 ',
-            prefix_break='🚰 ',
-            prefix_inactive='🍏 Pomodoro',
-            prefix_long_break='🚰🚶 ',
-            **powerline
-        ),
-        widget.Wallpaper(
-            label='  Wallpaper',
-            random_selection=True,
-            fontsize=15,
-            background=color_blue,
-            option='fill',
-            **powerline
-        ),
-        widget.Wlan(
-            format=' {essid} {percent:1.0%}',
-            disconnected_message='睊',
-            background=color_green,
-            **powerline
-        ),
-        widget.TextBox(
-            '  ',
-            padding=0,
-            background=color_gray
-        ),
-        widget.CurrentLayout(
-            padding=2,
-            background=color_gray,
-            **powerline
-        ),
-        widget.Clock(
-            format='🕑 %I:%M %p',
-            background=color_cyan,
-            **powerline
-        ),
-        widget.Bluetooth(),
-        #NordVPN(),
-        widget.Systray(
-            padding=1,
-            background=color_darkgray
-        ),
-        AudioDeviceWidget(
-                background=color_darkgray
-                ),
-        widget.Volume(
-            background=color_darkgray
-        ),
-        widget.KeyboardLayout(
-            background=color_darkgray,
-            configured_keyboards=['us', 'latam']
-        ),
-        PowerOffButton()
-    ]
-
-    return widgets_list
-
 
 def init_widget_screen1():
     widgets_screen1 = init_widget_list()
@@ -201,7 +105,7 @@ groups.append(ScratchPad('scratchpad', [
              width=0.4, height=0.8, x=0.3, y=0.1, opacity=0.9),
     DropDown("notes", "flatpak run md.obsidian.Obsidian",
              width=0.8, height=0.8, x=0.1, y=0.1, opacity=1,
-             matches=[Match(wm_class=["obsidian"])]),
+             matches=[Match(wm_class=re.compile(r"^(obsidian)$"))]),
     DropDown("firefox", "firefox",
              width=0.8, height=0.8, x=0.1, y=0.1, opacity=1,
              on_focus_lost_hide=False),
@@ -211,7 +115,7 @@ groups.append(ScratchPad('scratchpad', [
     DropDown("zathura", "zathura",
              width=0.8, height=0.8, x=0.1, y=0.1, opacity=1),
     DropDown("whatsapp", "/opt/whatsdesk/whatsdesk",
-             width=0.4, height=0.8, x=0.3, y=0.1, opacity=1),
+             width=0.55, height=0.8, x=0.25, y=0.1, opacity=1),
     DropDown("nvim", "alacritty --class=nvim -e nvim",
              width=0.4, height=0.8, x=0.3, y=0.1, opacity=0.9),
     DropDown("bluetuith", "alacritty --class=bluetuith -e bluetuith",
