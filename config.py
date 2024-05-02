@@ -1,141 +1,148 @@
-import os
-import re
-import subprocess
-from modules.personal_widgets import init_widget_list
-from libqtile import bar, layout, extension, hook
+from libqtile import bar, layout, qtile 
+from libqtile.config import Click, Drag, Group, Key, Match, Screen
 from libqtile.lazy import lazy
-from libqtile.config import Key, Click, Drag, KeyChord, ScratchPad, DropDown
 from libqtile.utils import guess_terminal
-from libqtile.config import Group, Match, Screen
-from libqtile.dgroups import simple_key_binder
-from libqtile import hook, qtile
+ 
+# Testing qtile_extras
+from qtile_extras import widget
+from qtile_extras.widget.decorations import PowerLineDecoration, base
+
+#Personal Modules
 from modules.keys import keys
+from modules.personal_widgets import init_widget_list
 
-@hook.subscribe.startup_once
-def autostart():
-    home = os.path.expanduser('~/.config/qtile/autostart.sh')
-    subprocess.Popen([home])
-    if qtile.core.name == "x11":
-        os.environ["GDK_BACKEND"] = "x11" # Set the GDK_BACKEND environment variable to "x11"
-    elif qtile.core.name == "wayland":
-        os.environ["GDK_BACKEND"] = "wayland"
-
-# Set personal variables
 mod = "mod4"
 alt = "mod1"
 terminal = guess_terminal()
-font = "Agave Nerd Font"
+font = "Fira Code Nerd Font"
 
 
-#for vt in range(1,8):
-#    keys.append(
-#            Key(
-#                ["control", "mod1"],
-#                f"f{vt}",
-#                lazy.core.change_vt(vt).when(func=lambda: qtile.core.name == "wayland"),
-#                desc=f"Switch to VT{vt}",
-#                )
-#            )
-#
+# Add key bindings to switch VTs in Wayland.
+# We can't check qtile.core.name in default config as it is loaded before qtile is started
+# We therefore defer the check until the key binding is run by using .when(func=...)
+for vt in range(1, 8):
+    keys.append(
+        Key(
+            ["control", "mod1"],
+            f"f{vt}",
+            lazy.core.change_vt(vt).when(func=lambda: qtile.core.name == "wayland"),
+            desc=f"Switch to VT{vt}",
+        )
+    )
 
-groups = [
-        Group("🌐",
-              layout="treetab",
-              ),
-        Group("📝",
-              layout="treetab"
-              ),
-        Group("🎮"),
-        Group("📚",
-              layout="columns"
-              ),
-        Group("󰆍")
+
+groups = [Group(i) for i in "123456789"]
+
+for i in groups:
+    keys.extend(
+        [
+            # mod1 + group number = switch to group
+            Key(
+                [mod],
+                i.name,
+                lazy.group[i.name].toscreen(),
+                desc="Switch to group {}".format(i.name),
+            ),
+            # mod1 + shift + group number = switch to & move focused window to group
+            Key(
+                [mod, "shift"],
+                i.name,
+                lazy.window.togroup(i.name, switch_group=True),
+                desc="Switch to & move focused window to group {}".format(i.name),
+            ),
+            # Or, use below if you prefer not to switch to that group.
+            # # mod1 + shift + group number = move focused window to group
+            # Key([mod, "shift"], i.name, lazy.window.togroup(i.name),
+            #     desc="move focused window to group {}".format(i.name)),
         ]
-
-layout_theme = {
-        "border_width": 2,
-        "margin": 2,
-        }
+    )
 
 layouts = [
-        layout.Columns(
-            border_focus_stack=["#d75f5f", "#8f3d3d"], **layout_theme),
-        layout.TreeTab(
-            sections = ["General", "Birkman", "Cursos", "Chats"],
-            previous_on_rm=True,
-            **layout_theme),
-        layout.Stack(num_stacks=2, **layout_theme),
-        #layout.RatioTile(**layout_theme),
-        #layout.Bsp(**layout_theme),
-        # layout.Matrix(**layout_theme),
-        # layout.MonadTall(**layout_theme),
-        # layout.MonadWide(**layout_theme),
-        # layout.Tile(**layout_theme),
-        # layout.VerticalTile(**layout_theme),
-        # layout.Max(),
-        # layout.Zoomy(),
+    layout.Columns(border_focus_stack=["#d75f5f", "#8f3d3d"], border_width=4),
+    layout.Max(),
+    # Try more layouts by unleashing below layouts.
+    # layout.Stack(num_stacks=2),
+    # layout.Bsp(),
+    # layout.Matrix(),
+    # layout.MonadTall(),
+    # layout.MonadWide(),
+    # layout.RatioTile(),
+    # layout.Tile(),
+    # layout.TreeTab(),
+    # layout.VerticalTile(),
+    # layout.Zoomy(),
 ]
+
+## Power Line decoration
+#powerline = {
+#        "decorations": [
+#            PowerLineDecoration()
+#            ]
+#        }
+#
+#
+#widget_defaults = dict(
+#    font="FiraCode Nerd Font",
+#    fontsize=12,
+#    padding=3,
+#)
+#extension_defaults = widget_defaults.copy()
+#
+#def init_widget_list():
+#    # Color Variables
+#    color_yellow = '#FFFF00'
+#    color_blue = '#0047AB'
+#    color_green = '#007F5F'
+#    color_gray = '#B1B2B8'
+#    color_cyan = '#00A3CC'
+#    color_orange = '#fe640b'
+#    color_darkgray = '#4c4f56'
+#
+#    widgets_list = [
+#            widget.CurrentLayout(),
+#            widget.GroupBox(),
+#            widget.Prompt(),
+#            widget.WindowName(),
+#            widget.Chord(
+#                chords_colors={
+#                    "launch": ("#ff0000", "#ffffff"),
+#                    },
+#                name_transform=lambda name: name.upper(),
+#                ),
+#            widget.Clock(
+#                format=" %I:%M %p",
+#                background=color_cyan,
+#                **powerline
+#                ),
+#            widget.StatusNotifier(),
+#            widget.QuickExit(),
+#            ]
+#    return widgets_list
 
 def init_widget_screen1():
     widgets_screen1 = init_widget_list()
     return widgets_screen1
 def init_widget_screen2():
     widgets_screen2 = init_widget_list()
-    del widgets_screen2[-5:]
+#    del widgets_screen2[-5:]
     return widgets_screen2
 
 screens = [
     Screen(top=bar.Bar(widgets=init_widget_screen1(), size=24,)),
     Screen(top=bar.Bar(widgets=init_widget_screen2(), size=24,)),
 ]
+# Drag floating layouts.
+mouse = [
+    Drag([mod], "Button1", lazy.window.set_position_floating(), start=lazy.window.get_position()),
+    Drag([mod], "Button3", lazy.window.set_size_floating(), start=lazy.window.get_size()),
+    Click([mod], "Button2", lazy.window.bring_to_front()),
+]
 
-dgroups_key_binder = simple_key_binder("mod4")
+dgroups_key_binder = None
 dgroups_app_rules = []  # type: list
-
-
-# Define scratchpads
-groups.append(ScratchPad('scratchpad', [
-    DropDown("term", "alacritty --class=scratch",
-             width=0.4, height=0.8, x=0.3, y=0.1, opacity=0.9),
-    DropDown("ranger", "alacritty --class=ranger -e ranger",
-             width=0.6, height=0.8, x=0.2, y=0.1, opacity=0.9),
-    DropDown("cmus", "alacritty --class=cmus -e cmus",
-             width=0.8, height=0.8, x=0.1, y=0.1, opacity=0.9),
-    DropDown("keepass", "keepassxc",
-             width=0.4, height=0.8, x=0.3, y=0.1, opacity=0.9),
-    DropDown("notes", "flatpak run md.obsidian.Obsidian",
-             width=0.8, height=0.8, x=0.1, y=0.1, opacity=1,
-             matches=[Match(wm_class=re.compile(r"^(obsidian)$"))]),
-    DropDown("firefox", "firefox",
-             width=0.8, height=0.8, x=0.1, y=0.1, opacity=1,
-             on_focus_lost_hide=False),
-    DropDown("chrome", "flatpak run com.google.Chrome",
-             width=0.8, height=0.8, x=0.1, y=0.1, opacity=1,
-             on_focus_lost_hide=False),
-    DropDown("zathura", "zathura",
-             width=0.8, height=0.8, x=0.1, y=0.1, opacity=1),
-    DropDown("whatsapp", "/opt/whatsdesk/whatsdesk",
-             width=0.55, height=0.8, x=0.25, y=0.1, opacity=1),
-    DropDown("nvim", "alacritty --class=nvim -e nvim",
-             width=0.4, height=0.8, x=0.3, y=0.1, opacity=0.9),
-    DropDown("bluetuith", "alacritty --class=bluetuith -e bluetuith",
-             width=0.4, height=0.8, x=0.3, y=0.1, opacity=0.9),
-    DropDown("android", "scrcpy -S",
-             width=0.2, height=0.8, x=0.4, y=0.1, opacity=1,
-             on_focus_lost_hide=False),
-    DropDown("keys", "alacritty --class=keys -e 'qtilekeys | less'",
-             width=0.2, height=0.8, x=0.4, y=0.1, opacity=1,
-             on_focus_lost_hide=False),
-    DropDown("htop", "alacritty -e htop",
-             height=0.5, width=0.5, x=0.25, y=0.25),
-    DropDown("authy", "authy",
-             height=0.4, width=0.8, x=0.3, y=0.1),
-    DropDown("radeontop", "alacritty -e radeontop",
-             height=0.5, width=0.5, x=0.25, y=0.25)
-]))
-
 follow_mouse_focus = True
 bring_front_click = False
+floats_kept_above = True
 cursor_warp = False
 floating_layout = layout.Floating(
     float_rules=[
@@ -145,12 +152,8 @@ floating_layout = layout.Floating(
         Match(wm_class="makebranch"),  # gitk
         Match(wm_class="maketag"),  # gitk
         Match(wm_class="ssh-askpass"),  # ssh-askpass
-        Match(wm_class="Tor Browser"),  # tor browser to avoid fingerprinting 
         Match(title="branchdialog"),  # gitk
         Match(title="pinentry"),  # GPG key password entry
-        Match(title="Installation"),
-        Match(title="Picture-in-Picture"),
-        Match(title="Live Caption")
     ]
 )
 auto_fullscreen = True
@@ -159,7 +162,7 @@ reconfigure_screens = True
 
 # If things like steam games want to auto-minimize themselves when losing
 # focus, should we respect this or not?
-auto_minimize = False
+auto_minimize = True
 
 # When using the Wayland backend, this can be used to configure input devices.
 wl_input_rules = None
